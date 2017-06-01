@@ -207,6 +207,29 @@ void LocationRoutingSolution::mutation(LocationRoutingProblem &problem){
     //Atualizar concentradores associados....
 }
 
+void LocationRoutingSolution::mutation(LocationRoutingProblem &problem, vector<double> i_mut){
+    /*unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    static std::default_random_engine generator(seed);*/
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    //double mp = 1 / problem.getN_node(); //mp = probabilidade de mutar apenas um gene
+
+    for(int i = 0; i < problem.getN_node(); i++){
+        if(distribution(generator) < i_mut[i]){//randDouble(0, 1) < mp){
+            if(is_hub[i] == 1){ // Um concentrador deixa de ser concentrador...
+                is_hub[i] = 0;
+                hubs.remove(i);
+                n_hub--;
+            } else { // Um não concentrador passa a ser concentrador...
+                is_hub[i] = 1;
+                hubs.push_back(i);
+                n_hub++;
+            }
+        }
+    }
+    whatHubUpdate(problem);
+    //Atualizar concentradores associados....
+}
+
 LocationRoutingSolution LocationRoutingSolution::crossoverNPoint(LocationRoutingProblem &problem, LocationRoutingSolution &parent2, LocationRoutingSolution &offspring1, int n) {
     LocationRoutingSolution offspring2(problem);
     int cut; //Ponto de corte

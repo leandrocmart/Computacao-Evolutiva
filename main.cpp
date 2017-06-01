@@ -2,6 +2,7 @@
 #include "LocationRoutingProblem.h"
 #include "LocationRoutingSolution.h"
 #include "GA.h"
+#include "AE.h"
 
 int main() {
     //string input = "AP20.txt"; //argv[1];
@@ -10,7 +11,8 @@ int main() {
     //LocationRoutingProblem problem(input.c_str(), output.c_str()); //Base de dados "Australia Post"
     LocationRoutingProblem problem(input.c_str(), output.c_str()); //Base de dados "CAB"
     //problem.display();
-    GA ga(problem, 400, 0.7);
+    //GA ga(problem, 400, 100, 0.7); //Tamanho da População, Quantidade de Gerações, Taxa de Crossover
+    AE ae(problem, 400, 40, 0.5); //Tamanho da População, Quantidade de Gerações, Taxa de Crossover
     //LocationRoutingSolution solution(problem, 3); //1 é a quantidade de hubs da solução inicial
     //solution.display(problem);
     return 0;

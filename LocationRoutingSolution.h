@@ -27,6 +27,7 @@ public:
     void createSolution(LocationRoutingProblem &problem, int n);
     void evaluateSolution(LocationRoutingProblem &problem);
     void mutation(LocationRoutingProblem &problem);
+    void mutation(LocationRoutingProblem &problem, vector<double> i_mut);
     LocationRoutingSolution crossoverNPoint(LocationRoutingProblem &problem, LocationRoutingSolution &parent2, LocationRoutingSolution &offspring1, int n);
     LocationRoutingSolution crossoverUniform(LocationRoutingProblem &problem, LocationRoutingSolution &parent2, LocationRoutingSolution &offspring1, int n);
     int searchHub(int node);

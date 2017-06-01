@@ -164,7 +164,7 @@ void LocationRoutingProblem::distanceCalculation(vector<pair<double, double>> &c
 
     for(int i = 0; i < getN_node(); i++){
         for(int j = i + 1; j < getN_node(); j++) {
-            dij = sqrt(pow((coordenates[i].first - coordenates[i].second), 2) + pow((coordenates[j].first - coordenates[j].second), 2));
+            dij = sqrt(pow((coordenates[i].first - coordenates[j].first), 2) + pow((coordenates[i].second - coordenates[j].second), 2));
             distances[i][j] = distances[j][i] = dij/1000;
         }
     }

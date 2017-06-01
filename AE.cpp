@@ -1,19 +1,19 @@
 //
-// Created by Leandro on 15/05/2017.
+// Created by leandro on 01/06/17.
 //
 
-#include "GA.h"
+#include "AE.h"
 
-default_random_engine GA::generator((int) chrono::system_clock::now().time_since_epoch().count());
+default_random_engine AE::generator((int) chrono::system_clock::now().time_since_epoch().count());
 
-GA::GA(LocationRoutingProblem &problem, int pop_size, int generation_size, double cp) {
+AE::AE(LocationRoutingProblem &problem, int pop_size, int generation_size, double a_p) {
     population_size = pop_size;
-    cross_p = cp;
-    mut_p =  1 - cp;
+    //cross_p = cp;
+    //mut_p =  1 - cp;
     competicao_pais_filhos = true;
     //int parent1, parent2;
     //LocationRoutingSolution offspring1(problem), offspring2(problem);
-
+    alpha_p = a_p;
     createInitialPopulation(problem);
     //display(problem);
     //getchar();
@@ -40,30 +40,31 @@ GA::GA(LocationRoutingProblem &problem, int pop_size, int generation_size, doubl
     offspring2.display(problem);*/
 }
 
-int GA::getPopulation_Size() const {
+int AE::getPopulation_Size() const {
     return population_size;
 }
 
-double GA::getCross_p() const {
-    return cross_p;
+double AE::getAlpha_p() const {
+    return alpha_p;
 }
 
-double GA::getMut_p() const {
+/*double AE::getMut_p() const {
     return mut_p;
-}
+}*/
 
-bool GA::isCompeticao_pais_filhos() const {
+bool AE::isCompeticao_pais_filhos() const {
     return competicao_pais_filhos;
 }
 
-void GA::createInitialPopulation(LocationRoutingProblem &problem) {
+void AE::createInitialPopulation(LocationRoutingProblem &problem) {
     for(int i = 0; i < getPopulation_Size(); i++){
         LocationRoutingSolution solution(problem, 2);
-        population.push_back(solution);
+        Individual individual(problem, solution);
+        population.push_back(individual);
     }
 }
 
-void GA::display(LocationRoutingProblem &problem) {
+void AE::display(LocationRoutingProblem &problem) {
     cout << "\n\n*************** GA ***************" << endl;
     for(unsigned int i = 0; i < population.size(); i++){
         cout << "\nSolution " << i + 1;
@@ -71,7 +72,7 @@ void GA::display(LocationRoutingProblem &problem) {
     }
 }
 
-int GA::tournamentSelection(vector<LocationRoutingSolution> &population, int tournament_size) {
+int AE::tournamentSelection(vector<Individual> &population, int tournament_size) {
     vector<int> indexes(tournament_size, -1); //Inicializa o vetor que salvará os índices das soluções a serem escolhidas para o Torneio
     int random_index, solution;
     int j = 0;
@@ -107,8 +108,8 @@ int GA::tournamentSelection(vector<LocationRoutingSolution> &population, int tou
     for(int i = 0; i < tournament_size; i++) {
         int index = indexes[i];
 
-        if (cost > population[index].getCost()) {
-            cost = population[index].getCost();
+        if (cost > population[index].getSolution().getCost()) {
+            cost = population[index].getSolution().getCost();
             solution = index;
         }
     }
@@ -116,7 +117,7 @@ int GA::tournamentSelection(vector<LocationRoutingSolution> &population, int tou
     return solution;
 }
 
-int GA::rouletteSelection(vector<LocationRoutingSolution> &population) {
+int AE::rouletteSelection(vector<Individual> &population) {
     double r, aux = 0;
     /*unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     static std::default_random_engine generator(seed);*/
@@ -128,11 +129,11 @@ int GA::rouletteSelection(vector<LocationRoutingSolution> &population) {
     int solution;
 
     for(unsigned int i = 0; i < population.size(); i++) {
-        total_fitness += population[i].getCost();
+        total_fitness += population[i].getSolution().getCost();
     }
 
     for(unsigned int i = 0; i < population.size(); i++) {
-        probabilities.push_back((1 - (population[i].getCost() / total_fitness))/(population.size() - 1));
+        probabilities.push_back((1 - (population[i].getSolution().getCost() / total_fitness))/(population.size() - 1));
     }
 
     interval.push_back(0);
@@ -154,7 +155,7 @@ int GA::rouletteSelection(vector<LocationRoutingSolution> &population) {
     return solution;
 }
 
-vector<int> GA::rouletteSUSSelection(vector<LocationRoutingSolution> &population, int n_pins) {
+vector<int> AE::rouletteSUSSelection(vector<Individual> &population, int n_pins) {
     double r, aux = 0, spacing, total_fitness = 0;
     /*unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     static std::default_random_engine generator(seed);*/
@@ -168,11 +169,11 @@ vector<int> GA::rouletteSUSSelection(vector<LocationRoutingSolution> &population
     spacing = (double) 1/n_pins;
 
     for(unsigned int i = 0; i < population.size(); i++) {
-        total_fitness += population[i].getCost();
+        total_fitness += population[i].getSolution().getCost();
     }
 
     for(unsigned int i = 0; i < population.size(); i++) {
-        probabilities.push_back((1 - (population[i].getCost() / total_fitness))/(population.size() - 1));
+        probabilities.push_back((1 - (population[i].getSolution().getCost() / total_fitness))/(population.size() - 1));
     }
 
     interval.push_back(0);
@@ -225,10 +226,13 @@ vector<int> GA::rouletteSUSSelection(vector<LocationRoutingSolution> &population
     return solutions;
 }
 
-void GA::run(LocationRoutingProblem &problem, int generation_size) {
+void AE::run(LocationRoutingProblem &problem, int generation_size) {
     int parent1, parent2, survivor, size, n_elite;
-    vector<LocationRoutingSolution> new_population, elite;
-    LocationRoutingSolution best_solution(problem);
+    double p_c1, p_c2;
+    vector<double> aux_i_mut1(problem.getN_node(), 0), aux_i_mut2(problem.getN_node(), 0);
+    vector<Individual> new_population, elite;
+    LocationRoutingSolution best_sol(problem);
+    Individual best_solution(problem, best_sol);
     /*unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     static std::default_random_engine generator(seed);*/
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -243,11 +247,17 @@ void GA::run(LocationRoutingProblem &problem, int generation_size) {
         size = population.size()/2;
 
         for(int k = 0; k < size; k++) {
-            LocationRoutingSolution offspring1(problem), offspring2(problem);
+            LocationRoutingSolution off1(problem), off2(problem);
+            Individual offspring1(problem, off1), offspring2(problem, off2);
             parent1 = tournamentSelection(population, 10);
             parent2 = tournamentSelection(population, 3);
+            p_c1 = population[parent1].getP_cross();
+            p_c2 = population[parent1].getP_cross();
 
-            if (distribution(generator) < getCross_p()) {
+            if (distribution(generator) < (p_c1 + p_c2) / 2) {
+                /*cout << "\nCROSSOVER: " << endl;
+                population[parent1].display(problem);
+                population[parent2].display(problem);*/
                 /*cout << "\nParents: " << endl;
                 population[parent1].display(problem);
                 population[parent2].display(problem);*/
@@ -256,8 +266,15 @@ void GA::run(LocationRoutingProblem &problem, int generation_size) {
                 cout << "\n\n---------------------------- 0 - Pai 2:" << endl;
                 population[parent2].display(problem);//offspring1.display(problem);*/
 
-                offspring2 = population[parent1].crossoverUniform(problem, population[parent2], offspring1, 2);
+                offspring2.getSolution() = population[parent1].getSolution().crossoverUniform(problem, population[parent2].getSolution(), offspring1.getSolution(), 2);
+                offspring1.setP_cross(population[parent1].getP_cross()*getAlpha_p()+population[parent2].getP_cross()*(1-getAlpha_p()));
+                offspring2.setP_cross(population[parent2].getP_cross()*getAlpha_p()+population[parent1].getP_cross()*(1-getAlpha_p()));
+                offspring1.setP_mut(1 - offspring1.getP_cross());
+                offspring2.setP_mut(1 - offspring2.getP_cross());
 
+                /*offspring1.display(problem);
+                offspring2.display(problem);
+                getchar();*/
                 /*cout << "\n\n---------------------------- 3 - Filho 1 depois do cruzamento" << endl;
                 offspring1.display(problem);
                 cout << "\n\n---------------------------- 3 - Filho 2 depois do cruzamento" << endl;
@@ -267,10 +284,39 @@ void GA::run(LocationRoutingProblem &problem, int generation_size) {
                  offspring2.display(problem);*/
                 //system("pause");
             } else { //mp = 1 - cp
+                /*cout << "\nMUTATION: " << endl;
+                population[parent1].display(problem);
+                population[parent2].display(problem);*/
+
                 offspring1 = population[parent1];
                 offspring2 = population[parent2];
-                offspring1.mutation(problem);
-                offspring2.mutation(problem);
+                offspring1.getSolution().mutation(problem, offspring1.getI_mut());
+                offspring2.getSolution().mutation(problem, offspring1.getI_mut());
+
+                offspring1.setP_mut(population[parent1].getP_mut()*getAlpha_p()+population[parent2].getP_mut()*(1-getAlpha_p()));
+                offspring2.setP_mut(population[parent2].getP_mut()*getAlpha_p()+population[parent1].getP_mut()*(1-getAlpha_p()));
+                offspring1.setP_cross(1 - offspring1.getP_mut());
+                offspring2.setP_cross(1 - offspring2.getP_mut());
+
+                for(int l = 0; l < offspring1.getI_mut().size(); l++){
+                    aux_i_mut1[l] = offspring1.getI_mut()[l]*getAlpha_p()+offspring2.getI_mut()[l]*(1-getAlpha_p());
+                }
+
+                for(int l = 0; l < offspring2.getI_mut().size(); l++){
+                    aux_i_mut2[l] = offspring2.getI_mut()[l]*getAlpha_p()+offspring1.getI_mut()[l]*(1-getAlpha_p());
+                }
+
+                offspring1.setI_mut(aux_i_mut1);
+                offspring2.setI_mut(aux_i_mut2);
+
+                aux_i_mut1.clear();
+                aux_i_mut1.assign(problem.getN_node(), 0);
+                aux_i_mut2.clear();
+                aux_i_mut2.assign(problem.getN_node(), 0);
+
+                /*offspring1.display(problem);
+                offspring2.display(problem);
+                getchar();*/
             }
             //cout << 3 << endl;
             //cout << "\nOffsprings 2: " << endl;
@@ -279,8 +325,8 @@ void GA::run(LocationRoutingProblem &problem, int generation_size) {
             cout << "O2" << endl;
             offspring2.display(problem);*/
 
-            offspring1.evaluateSolution(problem);
-            offspring2.evaluateSolution(problem);
+            offspring1.getSolution().evaluateSolution(problem);
+            offspring2.getSolution().evaluateSolution(problem);
             //cout << 3.1 << endl;
             //cout << offspring1.getCost() << " | " << offspring2.getCost() << endl;
             population.push_back(offspring1);
@@ -318,13 +364,13 @@ void GA::run(LocationRoutingProblem &problem, int generation_size) {
     }
 }
 
-void GA::findBest(LocationRoutingSolution &best_solution){
+void AE::findBest(Individual &best_solution){
     double OF = std::numeric_limits<double>::infinity();
     int best = 0;
 
     for(unsigned int i = 0; i < population.size(); i++){
-        if(population[i].getCost() < OF){
-            OF = population[i].getCost();
+        if(population[i].getSolution().getCost() < OF){
+            OF = population[i].getSolution().getCost();
             best = i;
         }
     }
@@ -333,12 +379,12 @@ void GA::findBest(LocationRoutingSolution &best_solution){
 }
 
 
-bool sortCost(LocationRoutingSolution i, LocationRoutingSolution j) {
-    return (i.getCost() < j.getCost());
+bool sortCost(Individual i, Individual j) {
+    return (i.getSolution().getCost() < j.getSolution().getCost());
 }
 
-vector<LocationRoutingSolution> GA::elitism(vector<LocationRoutingSolution> &population, int n_elite){
-    vector<LocationRoutingSolution> elite;
+vector<Individual> AE::elitism(vector<Individual> &population, int n_elite){
+    vector<Individual> elite;
     sort(population.begin(), population.end(), sortCost);
 
     /*cout << "N Size: " << population.size() * elite_percentage << endl;
@@ -356,7 +402,7 @@ vector<LocationRoutingSolution> GA::elitism(vector<LocationRoutingSolution> &pop
     return elite;
 }
 
-void GA::removeWorst(vector<LocationRoutingSolution> &population, int n_elite){
+void AE::removeWorst(vector<Individual> &population, int n_elite){
     sort(population.begin(), population.end(), sortCost);
 
     for(int i = 0; i < n_elite; i++){

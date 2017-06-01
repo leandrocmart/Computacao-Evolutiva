@@ -10,18 +10,19 @@
 
 class GA {
 public:
-    GA(LocationRoutingProblem &problem, int pop_size, double cp);
+    GA(LocationRoutingProblem &problem, int pop_size, int generation_size, double cp);
     int getPopulation_Size() const;
     void createInitialPopulation(LocationRoutingProblem &problem);
     int tournamentSelection(vector<LocationRoutingSolution> &population, int tournament_size);
     int rouletteSelection(vector<LocationRoutingSolution> &population);
+    vector<int> rouletteSUSSelection(vector<LocationRoutingSolution> &population, int n_pins);
     void run(LocationRoutingProblem &problem, int generation_size);
     void findBest(LocationRoutingSolution &best_solution);
     double getCross_p() const;
     double getMut_p() const;
     bool isCompeticao_pais_filhos() const;
     void display(LocationRoutingProblem &problem);
-    vector<LocationRoutingSolution> elitism(vector<LocationRoutingSolution> &population, int n_elite, LocationRoutingProblem &problem);
+    vector<LocationRoutingSolution> elitism(vector<LocationRoutingSolution> &population, int n_elite);
     void removeWorst(vector<LocationRoutingSolution> &population, int n_elite);
 private:
     vector<LocationRoutingSolution> population;

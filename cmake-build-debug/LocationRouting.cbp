@@ -84,10 +84,22 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/AE.cpp">
+			<Option target="LocationRouting"/>
+		</Unit>
+		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/AE.h">
+			<Option target="LocationRouting"/>
+		</Unit>
 		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/GA.cpp">
 			<Option target="LocationRouting"/>
 		</Unit>
 		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/GA.h">
+			<Option target="LocationRouting"/>
+		</Unit>
+		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/Individual.cpp">
+			<Option target="LocationRouting"/>
+		</Unit>
+		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/Individual.h">
 			<Option target="LocationRouting"/>
 		</Unit>
 		<Unit filename="/home/leandro/Dropbox/DOUTORADO/Computação Evolutiva/LocationRouting/LocationRoutingProblem.cpp">
