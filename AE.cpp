@@ -243,9 +243,9 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
                 offspring2.display(problem);
                 getchar();*/
             } else { //mp = 1 - cp
-                /*cout << "\nMUTATION: " << endl;
+                cout << "\nMUTATION: " << endl;
                 population[parent1].display(problem);
-                population[parent2].display(problem);*/
+                population[parent2].display(problem);
 
                 offspring1 = population[parent1];
                 offspring2 = population[parent2];
@@ -257,12 +257,12 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
                 offspring2.setP_cross(1 - offspring2.getP_mut());
 
                 //Faz a mutação dos parâmetros e da solução
-                offspring1.mutation(problem, offspring1, offspring2, population[parent1], population[parent2], getAlpha_p());
-                offspring2.mutation(problem, offspring1, offspring2, population[parent1], population[parent2], getAlpha_p());
+                offspring1.mutation(problem, population[parent1], population[parent2], getAlpha_p());
+                offspring2.mutation(problem, population[parent2], population[parent1], getAlpha_p());
 
-                /*offspring1.display(problem);
+                offspring1.display(problem);
                 offspring2.display(problem);
-                getchar();*/
+                getchar();
             }
 
             offspring1.getSolution().evaluateSolution(problem);

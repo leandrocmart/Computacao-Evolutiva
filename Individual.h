@@ -14,7 +14,7 @@ public:
 
     void display(LocationRoutingProblem &problem);
     LocationRoutingSolution &getSolution();
-    void mutation(LocationRoutingProblem &problem, Individual &offspring1, Individual &offspring2, Individual &parent1, Individual &parent2, double alpha_p);
+    void mutation(LocationRoutingProblem &problem, Individual &offspring1, Individual &offspring2, double alpha_p);
     double getP_mut() const;
     double getP_cross() const;
     void setP_mut(double p_mut);

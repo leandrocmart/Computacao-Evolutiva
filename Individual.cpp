@@ -74,25 +74,19 @@ void Individual::setI_mut(const vector<double> &i_mut) {
     Individual::i_mut = i_mut;
 }
 
-void Individual::mutation(LocationRoutingProblem &problem, Individual &offspring1, Individual &offspring2, Individual &parent1, Individual &parent2, double alpha_p) {
-    vector<double> aux_i_mut1(problem.getN_node(), 0), aux_i_mut2(problem.getN_node(), 0);
+void Individual::mutation(LocationRoutingProblem &problem, Individual &parent1, Individual &parent2, double alpha_p) {
+    vector<double> aux_i_mut(problem.getN_node(), 0);
 
     /*offspring1.setP_mut(parent1.getP_mut()*alpha_p+parent2.getP_mut()*(1-alpha_p));
     offspring2.setP_mut(parent2.getP_mut()*alpha_p+parent1.getP_mut()*(1-alpha_p));
     offspring1.setP_cross(1 - offspring1.getP_mut());
     offspring2.setP_cross(1 - offspring2.getP_mut());*/
 
-    for(unsigned int l = 0; l < offspring1.getI_mut().size(); l++){
-        aux_i_mut1[l] = offspring1.getI_mut()[l]*alpha_p+offspring2.getI_mut()[l]*(1-alpha_p);
+    for(unsigned int l = 0; l < getI_mut().size(); l++){
+        aux_i_mut[l] = parent1.getI_mut()[l]*alpha_p + parent2.getI_mut()[l]*(1-alpha_p);
     }
 
-    for(unsigned int l = 0; l < offspring2.getI_mut().size(); l++){
-        aux_i_mut2[l] = offspring2.getI_mut()[l]*alpha_p+offspring1.getI_mut()[l]*(1-alpha_p);
-    }
+    setI_mut(aux_i_mut);
 
-    offspring1.setI_mut(aux_i_mut1);
-    offspring2.setI_mut(aux_i_mut2);
-
-    offspring1.getSolution().mutation(problem, offspring1.getI_mut());
-    offspring2.getSolution().mutation(problem, offspring2.getI_mut());
+    getSolution().mutation(problem, getI_mut());
 }
