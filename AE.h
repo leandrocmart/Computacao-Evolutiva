@@ -18,13 +18,12 @@ public:
     void run(LocationRoutingProblem &problem, int generation_size);
     void findBest(Individual &best_solution);
     double getAlpha_p() const;
-    double getMut_p() const;
     bool isCompeticao_pais_filhos() const;
     void display(LocationRoutingProblem &problem);
     vector<Individual> elitism(vector<Individual> &population, int n_elite);
     void removeWorst(vector<Individual> &population, int n_elite);
 private:
-    vector<Individual> population;
+    vector<Individual> population; //População de Indivíduos
     int population_size;
     //LocationRoutingSolution best_solution;
     //double cross_p; //Probabilidade de crossover (mutação  = 1 - cp)
@@ -32,7 +31,7 @@ private:
     bool competicao_pais_filhos;
     int proporcao_pais_filhos;
     static default_random_engine generator;
-    double alpha_p;
+    double alpha_p; //Controla a proporção de cada parâmetro dos pais nos filhos
 };
 
 

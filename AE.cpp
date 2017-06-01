@@ -17,27 +17,8 @@ AE::AE(LocationRoutingProblem &problem, int pop_size, int generation_size, doubl
     createInitialPopulation(problem);
     //display(problem);
     //getchar();
-    //system("pause");
-    //parent1 = tournamentSelection(population, 2);
-    //parent2 = tournamentSelection(population, 2);
-    //cout << "* " << parent1 << " " << parent2 << endl;
-
-    //offspring2 = population[parent1].crossover(problem, population[parent2], offspring1, 1);
 
     run(problem, generation_size);
-
-    /*for(unsigned int i = 0; i < population[parent1].getIs_hub().size(); i++){
-        cout << population[parent1].getIs_hub()[i] << " ";
-    }
-    cout << endl;
-    for(unsigned int i = 0; i < population[parent2].getIs_hub().size(); i++){
-        cout << population[parent2].getIs_hub()[i] << " ";
-    }
-
-    cout << "\nFilho 1: " << endl;
-    offspring1.display(problem);
-    cout << "\nFilho 2: " << endl;
-    offspring2.display(problem);*/
 }
 
 int AE::getPopulation_Size() const {
@@ -47,10 +28,6 @@ int AE::getPopulation_Size() const {
 double AE::getAlpha_p() const {
     return alpha_p;
 }
-
-/*double AE::getMut_p() const {
-    return mut_p;
-}*/
 
 bool AE::isCompeticao_pais_filhos() const {
     return competicao_pais_filhos;
@@ -74,7 +51,7 @@ void AE::display(LocationRoutingProblem &problem) {
 
 int AE::tournamentSelection(vector<Individual> &population, int tournament_size) {
     vector<int> indexes(tournament_size, -1); //Inicializa o vetor que salvará os índices das soluções a serem escolhidas para o Torneio
-    int random_index, solution;
+    int random_index, solution = 0;
     int j = 0;
     double cost = std::numeric_limits<double>::infinity(); //Infinito
     /*unsigned seed = chrono::system_clock::now().time_since_epoch().count();
@@ -126,7 +103,7 @@ int AE::rouletteSelection(vector<Individual> &population) {
     vector<double> probabilities;
     vector<double> interval;
     double total_fitness = 0;
-    int solution;
+    int solution = 0;
 
     for(unsigned int i = 0; i < population.size(); i++) {
         total_fitness += population[i].getSolution().getCost();
@@ -164,7 +141,7 @@ vector<int> AE::rouletteSUSSelection(vector<Individual> &population, int n_pins)
     vector<double> probabilities;
     vector<double> interval;
     vector<int> solutions;
-    int solution;
+    int solution = 0;
 
     spacing = (double) 1/n_pins;
 
@@ -182,11 +159,6 @@ vector<int> AE::rouletteSUSSelection(vector<Individual> &population, int n_pins)
         aux += i;
         interval.push_back(aux);
     }
-
-    /*cout << "\n\nInterval: ";
-    for(int i = 0; i < interval.size(); i++){
-        cout << i << " " << interval[i] << endl;
-    }*/
 
     r = distribution(generator);
 
@@ -244,7 +216,7 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
         //best_solution.display(problem);
         //display(problem);
         elite = elitism(population, n_elite); //Melhores "n_elite" soluções entre pais
-        size = population.size()/2;
+        size = (int) population.size()/2;
 
         for(int k = 0; k < size; k++) {
             LocationRoutingSolution off1(problem), off2(problem);
@@ -256,16 +228,11 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
 
             if (distribution(generator) < (p_c1 + p_c2) / 2) {
                 /*cout << "\nCROSSOVER: " << endl;
+                cout << "\nParents: " << endl;
                 population[parent1].display(problem);
                 population[parent2].display(problem);*/
-                /*cout << "\nParents: " << endl;
-                population[parent1].display(problem);
-                population[parent2].display(problem);*/
-                /*cout << "\n\n---------------------------- 0 - Pai 1:" << endl;
-                population[parent1].display(problem);//offspring1.display(problem);
-                cout << "\n\n---------------------------- 0 - Pai 2:" << endl;
-                population[parent2].display(problem);//offspring1.display(problem);*/
 
+                //Atualiza as taxas de crossover e mutação
                 offspring2.getSolution() = population[parent1].getSolution().crossoverUniform(problem, population[parent2].getSolution(), offspring1.getSolution(), 2);
                 offspring1.setP_cross(population[parent1].getP_cross()*getAlpha_p()+population[parent2].getP_cross()*(1-getAlpha_p()));
                 offspring2.setP_cross(population[parent2].getP_cross()*getAlpha_p()+population[parent1].getP_cross()*(1-getAlpha_p()));
@@ -275,14 +242,6 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
                 /*offspring1.display(problem);
                 offspring2.display(problem);
                 getchar();*/
-                /*cout << "\n\n---------------------------- 3 - Filho 1 depois do cruzamento" << endl;
-                offspring1.display(problem);
-                cout << "\n\n---------------------------- 3 - Filho 2 depois do cruzamento" << endl;
-                offspring2.display(problem);*/
-                /* cout << "\nOffsprings 1: " << endl;
-                 offspring1.display(problem);
-                 offspring2.display(problem);*/
-                //system("pause");
             } else { //mp = 1 - cp
                 /*cout << "\nMUTATION: " << endl;
                 population[parent1].display(problem);
@@ -290,48 +249,26 @@ void AE::run(LocationRoutingProblem &problem, int generation_size) {
 
                 offspring1 = population[parent1];
                 offspring2 = population[parent2];
-                offspring1.getSolution().mutation(problem, offspring1.getI_mut());
-                offspring2.getSolution().mutation(problem, offspring1.getI_mut());
 
+                //Atualiza as taxas de crossover e mutação
                 offspring1.setP_mut(population[parent1].getP_mut()*getAlpha_p()+population[parent2].getP_mut()*(1-getAlpha_p()));
                 offspring2.setP_mut(population[parent2].getP_mut()*getAlpha_p()+population[parent1].getP_mut()*(1-getAlpha_p()));
                 offspring1.setP_cross(1 - offspring1.getP_mut());
                 offspring2.setP_cross(1 - offspring2.getP_mut());
 
-                for(int l = 0; l < offspring1.getI_mut().size(); l++){
-                    aux_i_mut1[l] = offspring1.getI_mut()[l]*getAlpha_p()+offspring2.getI_mut()[l]*(1-getAlpha_p());
-                }
-
-                for(int l = 0; l < offspring2.getI_mut().size(); l++){
-                    aux_i_mut2[l] = offspring2.getI_mut()[l]*getAlpha_p()+offspring1.getI_mut()[l]*(1-getAlpha_p());
-                }
-
-                offspring1.setI_mut(aux_i_mut1);
-                offspring2.setI_mut(aux_i_mut2);
-
-                aux_i_mut1.clear();
-                aux_i_mut1.assign(problem.getN_node(), 0);
-                aux_i_mut2.clear();
-                aux_i_mut2.assign(problem.getN_node(), 0);
+                //Faz a mutação dos parâmetros e da solução
+                offspring1.mutation(problem, offspring1, offspring2, population[parent1], population[parent2], getAlpha_p());
+                offspring2.mutation(problem, offspring1, offspring2, population[parent1], population[parent2], getAlpha_p());
 
                 /*offspring1.display(problem);
                 offspring2.display(problem);
                 getchar();*/
             }
-            //cout << 3 << endl;
-            //cout << "\nOffsprings 2: " << endl;
-            /*cout << "O1.1" << endl;
-            offspring1.display(problem);
-            cout << "O2" << endl;
-            offspring2.display(problem);*/
 
             offspring1.getSolution().evaluateSolution(problem);
             offspring2.getSolution().evaluateSolution(problem);
-            //cout << 3.1 << endl;
-            //cout << offspring1.getCost() << " | " << offspring2.getCost() << endl;
             population.push_back(offspring1);
             population.push_back(offspring2);
-            //cout << 4 << endl;
         }
 
         //display(problem);
@@ -387,17 +324,9 @@ vector<Individual> AE::elitism(vector<Individual> &population, int n_elite){
     vector<Individual> elite;
     sort(population.begin(), population.end(), sortCost);
 
-    /*cout << "N Size: " << population.size() * elite_percentage << endl;
-    cout << "Elite Size 1.1: " << elite.size() << endl;*/
-
     for(int i = 0; i < n_elite; i++){
         elite.push_back(population[i]);
     }
-
-    /*for(unsigned int i = 0; i < elite.size(); i++){
-        elite[i].display(problem);
-    }
-    cout << "Elite Size 2: " << elite.size() << endl;*/
 
     return elite;
 }

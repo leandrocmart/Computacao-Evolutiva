@@ -12,8 +12,9 @@ int main() {
     LocationRoutingProblem problem(input.c_str(), output.c_str()); //Base de dados "CAB"
     //problem.display();
     //GA ga(problem, 400, 100, 0.7); //Tamanho da População, Quantidade de Gerações, Taxa de Crossover
-    AE ae(problem, 400, 40, 0.5); //Tamanho da População, Quantidade de Gerações, Taxa de Crossover
+    AE ae(problem, 400, 40, 0.5); //Tamanho da População, Quantidade de Gerações, Alpha
     //LocationRoutingSolution solution(problem, 3); //1 é a quantidade de hubs da solução inicial
     //solution.display(problem);
+
     return 0;
 }

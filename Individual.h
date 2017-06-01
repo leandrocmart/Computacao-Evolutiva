@@ -14,21 +14,17 @@ public:
 
     void display(LocationRoutingProblem &problem);
     LocationRoutingSolution &getSolution();
-    //void mutation();
+    void mutation(LocationRoutingProblem &problem, Individual &offspring1, Individual &offspring2, Individual &parent1, Individual &parent2, double alpha_p);
     double getP_mut() const;
     double getP_cross() const;
     void setP_mut(double p_mut);
     void setP_cross(double p_cross);
-
     const vector<double> &getI_mut() const;
-    vector<double> &getI_mut();
-
     void setI_mut(const vector<double> &i_mut);
-
 private:
-    LocationRoutingSolution solution;
-    double p_mut, p_cross;
-    vector<double> i_mut;
+    LocationRoutingSolution solution; //Solução do problema
+    double p_mut, p_cross; //Taxas de mutação e crossover
+    vector<double> i_mut; //Vetor de intensidades de mutação
     /*vector<double> sigma3;
     vector<double> alpha;*/
     static default_random_engine generator;
